@@ -1,0 +1,385 @@
+Of course. Here is a single, comprehensive prompt that you can provide to an AI code assistant like Cursor. It contains all the necessary instructions and code to build the complete project from scratch.
+
+-----
+
+### **The Prompt**
+
+**You are an expert AI programmer building a solution for a hackathon. Your task is to create a complete project that extracts a structured outline (Title, H1, H2) from PDF files.**
+
+**The project must adhere to the following hackathon rules:**
+
+  * The final solution must be a **Docker container**.
+  * The solution must work entirely **offline** with no network calls.
+  * The approach should use a **machine learning model** trained on a sample PDF and its corresponding ground-truth JSON.
+
+**Your task is to generate all the necessary files with the exact directory structure and content provided below. Also, provide a clear explanation of how to run the project.**
+
+**1. Create the following project directory structure:**
+
+```
+/pdf-outline-solution
+|
+|-- Dockerfile
+|-- README.md
+|-- requirements.txt
+|
+|-- /input
+|   `-- (This folder should be created empty for the user to place their sample PDF)
+|
+|-- /output
+|   `-- (This folder should be created empty for the user to place their ground-truth JSON)
+|
+`-- /src
+    |-- __init__.py
+    |-- feature_extractor.py
+    |-- main.py
+    `-- train_model.py
+```
+
+**2. Populate the files with the following content:**
+
+-----
+
+#### **File: `requirements.txt`**
+
+```text
+PyMuPDF
+scikit-learn
+lightgbm
+joblib
+```
+
+-----
+
+#### **File: `src/__init__.py`**
+
+*(This file should be created empty)*
+
+-----
+
+#### **File: `src/feature_extractor.py`**
+
+```python
+import fitz  # PyMuPDF
+import statistics
+import re
+
+def extract_features(pdf_path: str) -> list:
+    """
+    Extracts a feature vector for each line of text in a PDF.
+    """
+    doc = fitz.open(pdf_path)
+    all_lines_with_features = []
+
+    # First pass: Get document-level statistics
+    all_font_sizes = []
+    for page in doc:
+        blocks = page.get_text("dict")["blocks"]
+        for block in blocks:
+            if "lines" in block:
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        all_font_sizes.append(round(span['size'], 2))
+    
+    if not all_font_sizes:
+        return []
+    
+    median_font_size = statistics.median(all_font_sizes) if all_font_sizes else 10.0
+
+    # Second pass: Extract features for each line
+    for page_num, page in enumerate(doc):
+        page_width = page.rect.width
+        lines_on_page = []
+        blocks = page.get_text("dict")["blocks"]
+        for block in blocks:
+            if "lines" in block:
+                for line in block["lines"]:
+                    if not line['spans']: continue
+                    
+                    span = line['spans'][0]
+                    line_text = "".join(s['text'] for s in line['spans']).strip()
+                    if not line_text: continue
+                    
+                    lines_on_page.append({
+                        "text": line_text,
+                        "size": round(span['size'], 2),
+                        "font": span['font'],
+                        "bold": "bold" in span['font'].lower() or "black" in span['font'].lower(),
+                        "x0": line['bbox'][0],
+                        "y0": line['bbox'][1],
+                        "page_num": page_num + 1
+                    })
+        
+        lines_on_page.sort(key=lambda x: x['y0'])
+
+        for i, line in enumerate(lines_on_page):
+            space_before = line['y0'] - lines_on_page[i-1]['y0'] if i > 0 else 30
+            
+            feature_vector = {
+                "text": line['text'],
+                "page_num": line['page_num'],
+                "size_ratio": line['size'] / median_font_size if median_font_size > 0 else 1,
+                "is_bold": line['bold'],
+                "indentation": line['x0'],
+                "is_centered": abs(line['x0'] - (page_width / 4)) < 50,
+                "space_before": space_before,
+                "word_count": len(line['text'].split()),
+                "has_numbering": bool(re.match(r"^\d+(\.\d+)*\s*", line['text'])),
+            }
+            all_lines_with_features.append(feature_vector)
+            
+    return all_lines_with_features
+```
+
+-----
+
+#### **File: `src/train_model.py`**
+
+```python
+import os
+import json
+import joblib
+import lightgbm as lgb
+from sklearn.preprocessing import LabelEncoder
+from feature_extractor import extract_features
+
+# --- Configuration ---
+INPUT_DIR = "../input"
+OUTPUT_DIR = "../output"
+
+print("Starting model training process...")
+
+# Find the first PDF and its corresponding JSON in the provided directories
+try:
+    pdf_filename = [f for f in os.listdir(INPUT_DIR) if f.lower().endswith('.pdf')][0]
+    json_filename = f"{os.path.splitext(pdf_filename)[0]}.json"
+    
+    PDF_PATH = os.path.join(INPUT_DIR, pdf_filename)
+    JSON_PATH = os.path.join(OUTPUT_DIR, json_filename)
+    
+    print(f"Using '{pdf_filename}' and '{json_filename}' for training.")
+    
+    if not os.path.exists(JSON_PATH):
+        raise FileNotFoundError(f"Ground truth file not found: {JSON_PATH}")
+
+except (IndexError, FileNotFoundError) as e:
+    print(f"Error: Could not find training files. Make sure one PDF is in '/input' and its matching JSON is in '/output'.")
+    print(f"Details: {e}")
+    exit()
+
+# --- Feature Extraction & Dataset Creation ---
+print("Step 1: Extracting features from the sample PDF...")
+all_lines_features = extract_features(PDF_PATH)
+
+print("Step 2: Creating the golden training dataset...")
+with open(JSON_PATH, 'r', encoding='utf-8') as f:
+    ground_truth = json.load(f)
+
+truth_lookup = {item['text']: item['level'] for item in ground_truth['outline']}
+truth_lookup[ground_truth['title']] = 'Title'
+
+FEATURE_KEYS = [
+    "size_ratio", "is_bold", "indentation", 
+    "is_centered", "space_before", "word_count", "has_numbering"
+]
+
+X_train = []
+y_train = []
+
+for line_features in all_lines_features:
+    text = line_features["text"]
+    label = truth_lookup.get(text, 'Body Text')
+    feature_vector = [line_features[key] for key in FEATURE_KEYS]
+    X_train.append(feature_vector)
+    y_train.append(label)
+
+print(f"Dataset created with {len(X_train)} samples.")
+
+# --- Model Training ---
+print("Step 3: Training the LightGBM model...")
+encoder = LabelEncoder()
+y_train_encoded = encoder.fit_transform(y_train)
+model = lgb.LGBMClassifier(objective='multiclass', random_state=42)
+model.fit(X_train, y_train_encoded)
+print("Model training complete.")
+
+# --- Save Artifacts ---
+print("Step 4: Saving model and encoder to disk...")
+joblib.dump(model, 'heading_model.pkl')
+joblib.dump(encoder, 'label_encoder.pkl')
+joblib.dump(FEATURE_KEYS, 'feature_keys.pkl')
+
+print("\n✅ Training artifacts saved successfully in the 'src' directory.")
+```
+
+-----
+
+#### **File: `src/main.py`**
+
+```python
+import os
+import json
+import joblib
+from feature_extractor import extract_features
+
+# --- Configuration ---
+INPUT_DIR = "/app/input"
+OUTPUT_DIR = "/app/output"
+MODEL_DIR = "/app/src" 
+
+print("Step 1: Loading trained model and artifacts...")
+try:
+    model = joblib.load(os.path.join(MODEL_DIR, 'heading_model.pkl'))
+    encoder = joblib.load(os.path.join(MODEL_DIR, 'label_encoder.pkl'))
+    feature_keys = joblib.load(os.path.join(MODEL_DIR, 'feature_keys.pkl'))
+    print("Model loaded successfully.")
+except FileNotFoundError:
+    print("❌ ERROR: Model files not found. Ensure train_model.py was run and .pkl files are in the src directory.")
+    exit()
+
+def predict_structure(pdf_path: str) -> dict:
+    line_features = extract_features(pdf_path)
+    if not line_features:
+        return {"title": "Empty or unreadable PDF", "outline": []}
+
+    X_predict = []
+    for line in line_features:
+        feature_vector = [line.get(key, 0) for key in feature_keys]
+        X_predict.append(feature_vector)
+
+    predicted_labels_encoded = model.predict(X_predict)
+    predicted_labels = encoder.inverse_transform(predicted_labels_encoded)
+
+    title = "Untitled Document"
+    outline = []
+    found_title = False
+    
+    for i, label in enumerate(predicted_labels):
+        if label == 'Title':
+            title = line_features[i]['text']
+            found_title = True
+            break
+            
+    for i, label in enumerate(predicted_labels):
+        if label.startswith('H') and not (found_title and line_features[i]['text'] == title):
+            outline.append({
+                "level": label,
+                "text": line_features[i]['text'],
+                "page": line_features[i]['page_num']
+            })
+            
+    if not found_title and outline:
+        title = outline[0]['text']
+        outline.pop(0)
+
+    return {"title": title, "outline": outline}
+
+if __name__ == "__main__":
+    print(f"Step 2: Starting processing of files from {INPUT_DIR}")
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+
+    for filename in os.listdir(INPUT_DIR):
+        if filename.lower().endswith(".pdf"):
+            input_path = os.path.join(INPUT_DIR, filename)
+            output_filename = f"{os.path.splitext(filename)[0]}.json"
+            output_path = os.path.join(OUTPUT_DIR, output_filename)
+            
+            print(f"  - Processing {filename}...")
+            try:
+                result = predict_structure(input_path)
+                with open(output_path, "w", encoding='utf-8') as f:
+                    json.dump(result, f, indent=4, ensure_ascii=False)
+                print(f"  - ✅ Successfully generated {output_filename}")
+            except Exception as e:
+                print(f"  - ❌ ERROR processing {filename}: {e}")
+    
+    print("Step 3: All files processed. Exiting.")
+```
+
+-----
+
+#### **File: `Dockerfile`**
+
+```dockerfile
+# Use a specific, lightweight Python base image compatible with amd64
+FROM --platform=linux/amd64 python:3.9-slim
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy requirements first to leverage Docker layer caching
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application source code and the trained model files
+COPY src/ /app/src/
+
+# Set the command to run the main application
+CMD ["python", "src/main.py"]
+```
+
+-----
+
+#### **File: `README.md`**
+
+````markdown
+# PDF Outline Extractor - Hackathon Submission
+
+This project extracts a structured outline (Title, H1, H2, H3) from PDF documents using a machine learning approach.
+
+## Approach
+
+The solution uses a **feature-driven machine learning model** with `LightGBM`. This is more robust than simple heuristics.
+
+1.  **Feature Extraction**: A script (`feature_extractor.py`) reads a PDF and calculates a feature vector for each line (e.g., font size relative to body text, boldness, indentation, spacing).
+2.  **Model Training**: A one-time script (`train_model.py`) uses a sample PDF and its corresponding ground-truth JSON to train a `LightGBM` classifier. It learns the specific feature patterns for 'Title', 'H1', 'H2', and 'Body Text'. The trained model is saved to `.pkl` files.
+3.  **Inference**: The main application (`main.py`) loads the pre-trained model. For any new PDF, it extracts features and uses the model to predict the structural role of each line, then assembles the final JSON output.
+
+## Libraries Used
+
+* **PyMuPDF**: For high-performance PDF parsing.
+* **scikit-learn**: For data preprocessing (LabelEncoder).
+* **LightGBM**: For a fast and accurate classification model.
+* **joblib**: For saving and loading the trained model.
+
+## How to Set Up and Run
+
+### Step 1: Train the Model (Do this once locally)
+
+You must train the model using your sample files before building the Docker image.
+
+1.  Place your sample PDF (e.g., `sample.pdf`) inside the `input/` directory.
+2.  Place its corresponding ground-truth JSON (e.g., `sample.json`) inside the `output/` directory.
+3.  Navigate to the `src/` directory in your terminal.
+    ```bash
+    cd src
+    ```
+4.  Run the training script.
+    ```bash
+    python train_model.py
+    ```
+    This will create `heading_model.pkl`, `label_encoder.pkl`, and `feature_keys.pkl` inside the `src/` directory.
+
+### Step 2: Build the Docker Image
+
+From the **root directory** of the project (where the `Dockerfile` is), run the build command.
+
+```bash
+docker build --platform linux/amd64 -t mysolutionname:somerandomidentifier .
+````
+
+### Step 3: Run the Solution
+
+After building the image, use the `docker run` command as specified in the hackathon rules. This command mounts your local input/output directories to the paths expected by the container.
+
+```bash
+docker run --rm -v $(pwd)/input:/app/input -v $(pwd)/output:/app/output --network none mysolutionname:somerandomidentifier
+```
+
+The container will automatically process all PDFs from your `input` directory and place the resulting JSON files in your `output` directory.
+
+```
+```
