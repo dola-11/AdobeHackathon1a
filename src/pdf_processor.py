@@ -77,34 +77,50 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
         text = line['text'].strip()
         ml_label = ml_predictions[i]
         
-        # Heuristic rules for heading detection
-        is_large_font = line.get('relative_font_size', 10) > median_font_size * 1.2
+        # Much more conservative heuristic rules
+        is_large_font = line.get('relative_font_size', 10) > median_font_size * 1.4
         is_bold = line.get('is_bold', False)
-        is_numbered = bool(re.match(r"^\d+(\.\d+)*\s+", text))
-        has_colon = text.endswith(':')
-        is_short = len(text.split()) < 12
-        is_uppercase = text.isupper()
-        has_space_before = line.get('space_before', 0) > 20
+        is_numbered = bool(re.match(r"^\d+(\.\d+)*\s+\w+", text))  # Number + space + word
+        has_colon = text.strip().endswith(':') and not text.strip().endswith('::')
+        is_reasonable_length = 5 <= len(text) <= 200  # Must be substantial but not too long
+        is_reasonable_words = 1 <= len(text.split()) <= 20
+        has_space_before = line.get('space_before', 0) > 15
         is_first_page = line.get('page_num', 1) == 1
+        is_appendix = text.lower().startswith('appendix')
         
-        # Title detection (first page, large/bold, short)
-        if (is_first_page and i < 10 and (is_large_font or is_bold) and 
-            len(text) > 10 and not text.lower().startswith(('copyright', 'version', 'page'))):
+        # Strong filters for non-headings
+        is_page_number = text.isdigit() and len(text) <= 3
+        is_single_char = len(text.strip()) <= 2
+        is_copyright_etc = text.lower().startswith(('copyright', 'version', 'page', '©', 'www.', 'http'))
+        is_incomplete = text.endswith(('-', '–')) or len(text.split()) == 1 and len(text) < 8
+        has_lowercase_start = text and text[0].islower() and not is_numbered
+        
+        if (is_page_number or is_single_char or is_copyright_etc or 
+            is_incomplete or has_lowercase_start or not is_reasonable_length):
+            final_predictions.append('Body Text')
+        # Title detection - very selective for first page
+        elif (is_first_page and i < 3 and len(text) > 20 and 
+              (is_large_font or is_bold) and ':' in text and 
+              not text.lower().startswith(('copyright', 'version'))):
             final_predictions.append('Title')
-        # H1 detection
-        elif ((is_large_font and is_bold) or 
-              (is_numbered and is_bold) or 
-              (is_uppercase and is_short and has_space_before)):
+        # H1 detection - major sections only
+        elif ((is_large_font and is_bold and is_reasonable_words) or 
+              (is_appendix and is_bold and is_reasonable_words) or
+              (text.isupper() and is_reasonable_words and has_space_before)):
             final_predictions.append('H1')
-        # H2 detection  
-        elif ((is_numbered and len(text.split('.')) >= 2) or
-              (is_bold and has_space_before and is_short) or
-              (has_colon and is_bold)):
+        # H2 detection - clear subsections
+        elif ((is_bold and has_space_before and is_reasonable_words and 
+               (has_colon or is_numbered)) or
+              (is_numbered and is_bold and len(text.split()) >= 3)):
             final_predictions.append('H2')
-        # H3 detection
-        elif ((is_numbered and len(text.split('.')) >= 3) or
-              (has_colon and is_short)):
+        # H3 detection - numbered sub-subsections or specific patterns
+        elif ((is_numbered and '.' in text and text.count('.') >= 2 and len(text.split()) >= 2) or
+              (has_colon and is_reasonable_words and len(text.split()) >= 2 and 
+               any(word in text.lower() for word in ['for each', 'timeline', 'result', 'phase']))):
             final_predictions.append('H3')
+        # H4 detection - very specific patterns
+        elif (text.startswith('For each') and has_colon and len(text.split()) >= 3):
+            final_predictions.append('H4')
         else:
             final_predictions.append('Body Text')
     
@@ -127,18 +143,24 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
             print(f"Found title: '{title}'")
             break
     
-    # Second pass: extract outline items
+    # Second pass: extract outline items and clean them up
+    seen_texts = set()  # Track to avoid duplicates
     for i, label in enumerate(final_predictions):
         if label.startswith('H'):
             text = line_features[i]['text'].strip()
             # Don't add the title text again if we already found it
-            if not (found_title and text == title):
-                outline.append({
-                    "level": label,
-                    "text": text,
-                    "page": line_features[i]['page_num']
-                })
-                print(f"Added to outline: {label} - '{text}' (page {line_features[i]['page_num']})")
+            # Also avoid duplicates and very similar entries
+            if not (found_title and text == title) and text not in seen_texts:
+                # Clean up the text
+                clean_text = text.strip()
+                if clean_text and len(clean_text) > 2:  # Ensure meaningful content
+                    outline.append({
+                        "level": label,
+                        "text": clean_text,
+                        "page": line_features[i]['page_num']
+                    })
+                    seen_texts.add(text)
+                    print(f"Added to outline: {label} - '{clean_text}' (page {line_features[i]['page_num']})")
     
     # If no title was found, try to construct one from first few text elements or first H1
     if not found_title:

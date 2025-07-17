@@ -47,16 +47,26 @@ def extract_features(pdf_path: str) -> list:
                     if not line['spans']: 
                         continue
                     
-                    span = line['spans'][0]
+                    # Combine all spans in the line to get complete text
                     line_text = "".join(s['text'] for s in line['spans']).strip()
-                    if not line_text: 
+                    if not line_text or len(line_text) < 2: 
                         continue
+                    
+                    # Use the dominant span properties (usually the first one)
+                    span = line['spans'][0]
+                    
+                    # Check if any span in the line is bold
+                    is_bold = any("bold" in s['font'].lower() or "black" in s['font'].lower() 
+                                  for s in line['spans'])
+                    
+                    # Get the largest font size in the line
+                    max_font_size = max(s['size'] for s in line['spans'])
                     
                     lines_on_page.append({
                         "text": line_text,
-                        "size": round(span['size'], 2),
+                        "size": round(max_font_size, 2),
                         "font": span['font'],
-                        "bold": "bold" in span['font'].lower() or "black" in span['font'].lower(),
+                        "bold": is_bold,
                         "x0": line['bbox'][0],
                         "y0": line['bbox'][1],
                         "page_num": page_num + 1

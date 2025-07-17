@@ -1,0 +1,540 @@
+{
+    "metadata": {
+        "outline_items": 106,
+        "total_pages": 14,
+        "total_text_lines": 550
+    },
+    "outline": [
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "RFP: R"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "quest f"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "r Pr"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "r Proposal"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "oposal"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "oposal"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "RFP: R"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "RFP: R"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "quest f"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "r Pr"
+        },
+        {
+            "level": "H1",
+            "page": 1,
+            "text": "oposal"
+        },
+        {
+            "level": "H1",
+            "page": 2,
+            "text": "Ontario’s Digital Library"
+        },
+        {
+            "level": "H1",
+            "page": 2,
+            "text": "Summary"
+        },
+        {
+            "level": "H2",
+            "page": 2,
+            "text": "2"
+        },
+        {
+            "level": "H3",
+            "page": 2,
+            "text": "developed is to document and clearly communicate:"
+        },
+        {
+            "level": "H3",
+            "page": 2,
+            "text": "Timeline:"
+        },
+        {
+            "level": "H1",
+            "page": 3,
+            "text": "Background"
+        },
+        {
+            "level": "H2",
+            "page": 3,
+            "text": "3"
+        },
+        {
+            "level": "H2",
+            "page": 4,
+            "text": "Equitable access for all Ontarians:"
+        },
+        {
+            "level": "H2",
+            "page": 4,
+            "text": "Shared decision-making and accountability:"
+        },
+        {
+            "level": "H2",
+            "page": 4,
+            "text": "Shared governance structure:"
+        },
+        {
+            "level": "H2",
+            "page": 4,
+            "text": "Shared funding:"
+        },
+        {
+            "level": "H2",
+            "page": 4,
+            "text": "4"
+        },
+        {
+            "level": "H3",
+            "page": 4,
+            "text": "The principles which will define and guide the ODL are:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "Local points of entry:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "Access:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "Guidance and Advice:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "Training:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "Provincial Purchasing & Licensing:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "Technological Support:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "What could the ODL really mean?"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "For each Ontario citizen it could mean:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "For each Ontario student it could mean:"
+        },
+        {
+            "level": "H2",
+            "page": 5,
+            "text": "5"
+        },
+        {
+            "level": "H3",
+            "page": 5,
+            "text": "Services envisioned for the ODL’s include:"
+        },
+        {
+            "level": "H1",
+            "page": 6,
+            "text": "The Business Plan to be Developed"
+        },
+        {
+            "level": "H2",
+            "page": 6,
+            "text": "For each Ontario library it could mean:"
+        },
+        {
+            "level": "H2",
+            "page": 6,
+            "text": "For the Ontario government it could mean:"
+        },
+        {
+            "level": "H2",
+            "page": 6,
+            "text": "6"
+        },
+        {
+            "level": "H3",
+            "page": 6,
+            "text": "Specifically, the business plan must include:"
+        },
+        {
+            "level": "H1",
+            "page": 7,
+            "text": "Milestones"
+        },
+        {
+            "level": "H1",
+            "page": 7,
+            "text": "Approach and Specific Proposal Requirements"
+        },
+        {
+            "level": "H2",
+            "page": 7,
+            "text": "7"
+        },
+        {
+            "level": "H3",
+            "page": 7,
+            "text": "The proposal should include the following information:"
+        },
+        {
+            "level": "H1",
+            "page": 8,
+            "text": "Evaluation and Awarding of Contract"
+        },
+        {
+            "level": "H2",
+            "page": 8,
+            "text": "8"
+        },
+        {
+            "level": "H3",
+            "page": 8,
+            "text": "Specifically, proposals will be evaluated proposals according to the following criteria:"
+        },
+        {
+            "level": "H1",
+            "page": 9,
+            "text": "Appendix A:  ODL Envisioned Phases & Funding"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Phase I:  Business Planning"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Timeline: March 2003 – September 2003"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Result: The ODL business plan"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Phase II: Implementing and Transitioning"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Timeline: April 2004 – December 2006"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Result: The ODL is implemented and validated"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Phase III: Operating and Growing the ODL"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Timeline: January 2007 -"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "Result: The ODL is fully operational and sustainable"
+        },
+        {
+            "level": "H2",
+            "page": 9,
+            "text": "9"
+        },
+        {
+            "level": "H1",
+            "page": 10,
+            "text": "OVERVIEW OF ODL FUNDING MODEL"
+        },
+        {
+            "level": "H1",
+            "page": 10,
+            "text": "Funding Source"
+        },
+        {
+            "level": "H1",
+            "page": 10,
+            "text": "2007"
+        },
+        {
+            "level": "H1",
+            "page": 10,
+            "text": "2017"
+        },
+        {
+            "level": "H2",
+            "page": 10,
+            "text": "10"
+        },
+        {
+            "level": "H3",
+            "page": 10,
+            "text": "outlines the model. This model is based on these assumptions:"
+        },
+        {
+            "level": "H1",
+            "page": 11,
+            "text": "Appendix B:"
+        },
+        {
+            "level": "H1",
+            "page": 11,
+            "text": "ODL Steering Committee Terms of Reference"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "1. Preamble"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2. Terms of Reference"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.1 developing a detailed business plan for the three-year implementation phase of the ODL, including"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.2 consulting with and reporting to stakeholder communities, to ensure open, consistent and two-way"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.3 recruiting and managing the business planner(s);"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.4 defining terms of reference and resource parameters for business planner(s), and authorizing"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.5 serving as a focus group for business planner(s) to test ideas;"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.6 providing signoff for business planner(s) at key decision points of business plan development;"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.7 securing commitment from library, government, and institutional stakeholders for implementation"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.8 presenting the business plan to funders"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "2.9 undertaking advocacy efforts to promote the ODL to the broader communities including library"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "3. Membership"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "3.1 Schools:"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "3.2 Universities:"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "3.3 Colleges:"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "3.4 Public libraries:"
+        },
+        {
+            "level": "H2",
+            "page": 11,
+            "text": "11"
+        },
+        {
+            "level": "H3",
+            "page": 11,
+            "text": "responsibilities include:"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "3.5 Ontario Library Association representative (ex-officio)  (OLA to appoint one representative)"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "3.6 It is anticipated that as planning for the ODL evolves, the Steering Committee may, at its"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "4. Appointment Criteria and Process"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "5. Term"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "6. Chair"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "7. Meetings"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "8. Lines of Accountability and Communication"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "8.1 The Steering Committee is accountable to the Province of Ontario, and to its business plan"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "8.2 The role of the Ontario Library Association is to assume responsibility for  funds contributed by the"
+        },
+        {
+            "level": "H2",
+            "page": 12,
+            "text": "12"
+        },
+        {
+            "level": "H3",
+            "page": 12,
+            "text": "Desired characteristics for steering committee appointees include:"
+        },
+        {
+            "level": "H3",
+            "page": 12,
+            "text": "Role of the Chair:"
+        },
+        {
+            "level": "H2",
+            "page": 13,
+            "text": "8.3 The Steering Committee is accountable to its constituent groups and other stakeholders for"
+        },
+        {
+            "level": "H2",
+            "page": 13,
+            "text": "9. Financial and Administrative Policies"
+        },
+        {
+            "level": "H2",
+            "page": 13,
+            "text": "9.1 Service on the Steering Committee is non-remunerative"
+        },
+        {
+            "level": "H2",
+            "page": 13,
+            "text": "9.2 Travel and meeting expenses for Steering Committee members are reimbursed according to the"
+        },
+        {
+            "level": "H2",
+            "page": 13,
+            "text": "9.3 Conflict of Interest:"
+        },
+        {
+            "level": "H2",
+            "page": 13,
+            "text": "13"
+        },
+        {
+            "level": "H1",
+            "page": 14,
+            "text": "Appendix C:"
+        },
+        {
+            "level": "H1",
+            "page": 14,
+            "text": "ODL’s Envisioned Electronic Resources"
+        },
+        {
+            "level": "H2",
+            "page": 14,
+            "text": "14"
+        },
+        {
+            "level": "H3",
+            "page": 14,
+            "text": "of their education, life and work. Some examples:"
+        }
+    ],
+    "title": "Ontario’s Libraries"
+}
