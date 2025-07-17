@@ -47,12 +47,24 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
     
     # Add title
     if 'title' in ground_truth:
-        truth_lookup[ground_truth['title']] = 'Title'
+        truth_lookup[ground_truth['title'].strip()] = 'Title'
+        print(f"Added title: '{ground_truth['title'].strip()}'")
     
     # Add outline items
     if 'outline' in ground_truth:
         for item in ground_truth['outline']:
-            truth_lookup[item['text']] = item['level']
+            truth_lookup[item['text'].strip()] = item['level']
+            print(f"Added {item['level']}: '{item['text'].strip()}'")
+    
+    print(f"Total ground truth items: {len(truth_lookup)}")
+    print(f"Ground truth labels: {set(truth_lookup.values())}")
+    
+    # Debug: Show some sample text from PDF
+    print("Sample PDF text lines:")
+    for i, line in enumerate(all_lines_features[:10]):
+        print(f"  {i+1}: '{line['text']}'")
+    if len(all_lines_features) > 10:
+        print(f"  ... and {len(all_lines_features) - 10} more lines")
     
     # Prepare training data
     feature_keys = get_feature_keys()
@@ -60,21 +72,42 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
     y_train = []
     
     print("Creating training dataset...")
+    matched_count = 0
     for line_features in all_lines_features:
-        text = line_features["text"]
+        text = line_features["text"].strip()
         label = truth_lookup.get(text, 'Body Text')
+        
+        if label != 'Body Text':
+            matched_count += 1
+            print(f"MATCHED: '{text}' -> {label}")
         
         # Extract feature vector
         feature_vector = []
         for key in feature_keys:
             value = line_features.get(key, 0)
-            # Convert boolean to int for LightGBM
+            # Convert boolean to int for Random Forest
             if isinstance(value, bool):
                 value = int(value)
             feature_vector.append(value)
         
         X_train.append(feature_vector)
         y_train.append(label)
+    
+    print(f"Matched {matched_count} out of {len(all_lines_features)} text lines with ground truth")
+    
+    # Debug: Show potential near matches
+    if matched_count == 0:
+        print("\nNo exact matches found. Checking for potential near matches...")
+        ground_truth_texts = set(truth_lookup.keys())
+        pdf_texts = set(line['text'].strip() for line in all_lines_features)
+        
+        print("First 10 ground truth texts:")
+        for i, text in enumerate(list(ground_truth_texts)[:10]):
+            print(f"  GT: '{text}'")
+        
+        print("\nFirst 10 PDF texts:")
+        for i, text in enumerate(list(pdf_texts)[:10]):
+            print(f"  PDF: '{text}'")
     
     if len(X_train) == 0:
         raise ValueError("No training data could be created")
