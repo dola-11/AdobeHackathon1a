@@ -1,0 +1,30 @@
+modules = ["python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["freetype", "glibcLocales", "gumbo", "harfbuzz", "jbig2dec", "libjpeg_turbo", "mupdf", "ocl-icd", "opencl-headers", "openjpeg", "swig", "xcbuild"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "PDF Outline Extractor"
+
+[[workflows.workflow]]
+name = "PDF Outline Extractor"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install flask pymupdf scikit-learn lightgbm joblib werkzeug && python app.py"
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
