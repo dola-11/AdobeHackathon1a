@@ -69,19 +69,33 @@ def extract_features(pdf_path: str) -> list:
         for i, line in enumerate(lines_on_page):
             space_before = line['y0'] - lines_on_page[i-1]['y0'] if i > 0 else 30
             
+            # More sophisticated text analysis
+            text = line['text']
+            is_likely_heading = (
+                line['size'] > median_font_size * 1.1 or  # Larger font
+                line['bold'] or  # Bold text
+                space_before > 15 or  # More space before
+                bool(re.match(r"^\d+(\.\d+)*\s+", text)) or  # Numbered section
+                text.isupper() or  # All caps
+                (len(text.split()) < 10 and text.strip().endswith(':'))  # Short with colon
+            )
+            
             feature_vector = {
-                "text": line['text'],
+                "text": text,
                 "page_num": line['page_num'],
                 "size_ratio": line['size'] / median_font_size if median_font_size > 0 else 1,
                 "is_bold": line['bold'],
                 "indentation": line['x0'],
                 "is_centered": abs(line['x0'] - (page_width / 4)) < 50,
                 "space_before": space_before,
-                "word_count": len(line['text'].split()),
-                "has_numbering": bool(re.match(r"^\d+(\.\d+)*\s*", line['text'])),
-                "text_length": len(line['text']),
-                "is_uppercase": line['text'].isupper(),
-                "starts_with_capital": line['text'][0].isupper() if line['text'] else False,
+                "word_count": len(text.split()),
+                "has_numbering": bool(re.match(r"^\d+(\.\d+)*\s*", text)),
+                "text_length": len(text),
+                "is_uppercase": text.isupper(),
+                "starts_with_capital": text[0].isupper() if text else False,
+                "is_likely_heading": is_likely_heading,
+                "relative_font_size": line['size'],
+                "ends_with_colon": text.strip().endswith(':'),
             }
             all_lines_with_features.append(feature_vector)
     
@@ -99,5 +113,6 @@ def get_feature_keys():
         "size_ratio", "is_bold", "indentation", 
         "is_centered", "space_before", "word_count", 
         "has_numbering", "text_length", "is_uppercase", 
-        "starts_with_capital"
+        "starts_with_capital", "is_likely_heading", 
+        "relative_font_size", "ends_with_colon"
     ]

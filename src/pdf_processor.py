@@ -65,28 +65,56 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
     outline = []
     found_title = False
     
+    # Debug: print prediction results
+    print(f"Processing {len(predicted_labels)} text elements...")
+    label_counts = {}
+    for label in predicted_labels:
+        label_counts[label] = label_counts.get(label, 0) + 1
+    print(f"Predicted label distribution: {label_counts}")
+    
     # First pass: look for title
     for i, label in enumerate(predicted_labels):
         if label == 'Title':
-            title = line_features[i]['text']
+            title = line_features[i]['text'].strip()
             found_title = True
+            print(f"Found title: '{title}'")
             break
     
     # Second pass: extract outline items
     for i, label in enumerate(predicted_labels):
-        if label.startswith('H') and not (found_title and line_features[i]['text'] == title):
-            outline.append({
-                "level": label,
-                "text": line_features[i]['text'],
-                "page": line_features[i]['page_num']
-            })
+        if label.startswith('H'):
+            text = line_features[i]['text'].strip()
+            # Don't add the title text again if we already found it
+            if not (found_title and text == title):
+                outline.append({
+                    "level": label,
+                    "text": text,
+                    "page": line_features[i]['page_num']
+                })
+                print(f"Added to outline: {label} - '{text}' (page {line_features[i]['page_num']})")
     
-    # If no title was found but we have outline items, use the first H1 as title
-    if not found_title and outline:
-        h1_items = [item for item in outline if item['level'] == 'H1']
-        if h1_items:
-            title = h1_items[0]['text']
-            outline = [item for item in outline if item['text'] != title]
+    # If no title was found, try to construct one from first few text elements or first H1
+    if not found_title:
+        if outline:
+            # Use the first H1 as title if available
+            h1_items = [item for item in outline if item['level'] == 'H1']
+            if h1_items:
+                title = h1_items[0]['text']
+                outline = [item for item in outline if item['text'] != title]
+                print(f"Using first H1 as title: '{title}'")
+        else:
+            # Try to construct title from first few meaningful text lines
+            meaningful_lines = []
+            for line in line_features[:10]:  # Check first 10 lines
+                text = line['text'].strip()
+                if len(text) > 5 and not text.lower().startswith(('copyright', 'page', 'version')):
+                    meaningful_lines.append(text)
+                    if len(meaningful_lines) >= 2:
+                        break
+            
+            if meaningful_lines:
+                title = ' '.join(meaningful_lines)
+                print(f"Constructed title from text: '{title}'")
     
     # Sort outline by page number and level
     outline.sort(key=lambda x: (x['page'], x['level']))
