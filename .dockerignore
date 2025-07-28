@@ -1,8 +1,8 @@
-# Git files
+
 .git
 .gitignore
 
-# Python cache
+
 __pycache__
 *.pyc
 *.pyo
@@ -10,46 +10,46 @@ __pycache__
 .Python
 *.so
 
-# Virtual environments
+
 .venv/
 venv/
 env/
 ENV/
 
-# IDE files
+
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files
+
 .DS_Store
 Thumbs.db
 
-# Logs
+
 *.log
 
-# Temporary files
+
 *.tmp
 *.temp
 
-# Development and IDE files
+
 .venv/
 .git/
 .replit
 *.md
 !README.md
 
-# Uploads and outputs (will be mounted as volumes)
+
 uploads/
 output/
 input/
 
-# Large files that shouldn't be in the image
+
 *.pdf
 *.json
 
-# Test and diagnostic files (not needed in container)
+
 test_*.py
 diagnose_*.py
 create_*.py
