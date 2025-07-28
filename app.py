@@ -11,12 +11,12 @@ import zipfile
 from io import BytesIO
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MODEL_FOLDER'] = 'models'
 app.config['OUTPUT_FOLDER'] = 'output'
 
-# Ensure directories exist
+
 for folder in [app.config['UPLOAD_FOLDER'], app.config['MODEL_FOLDER'], app.config['OUTPUT_FOLDER']]:
     os.makedirs(folder, exist_ok=True)
 
@@ -44,7 +44,7 @@ def upload_training_data():
         if not (allowed_file(pdf_file.filename) and allowed_file(json_file.filename)):
             return jsonify({'error': 'Invalid file types'}), 400
         
-        # Save files
+
         pdf_filename = secure_filename(pdf_file.filename)
         json_filename = secure_filename(json_file.filename)
         
@@ -79,7 +79,7 @@ def train_model_endpoint():
         if not os.path.exists(pdf_path) or not os.path.exists(json_path):
             return jsonify({'error': 'Training files not found'}), 404
         
-        # Train the model
+
         model_info = train_model(pdf_path, json_path, app.config['MODEL_FOLDER'])
         
         return jsonify({
@@ -103,29 +103,27 @@ def process_pdf_endpoint():
         
         if not allowed_file(pdf_file.filename):
             return jsonify({'error': 'Invalid file type'}), 400
-        
-        # Check if model exists
+
         model_path = os.path.join(app.config['MODEL_FOLDER'], 'heading_model.pkl')
         if not os.path.exists(model_path):
             return jsonify({'error': 'No trained model found. Please train a model first.'}), 400
         
-        # Save uploaded file temporarily
+
         tmp_file_path = None
         try:
             with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
                 pdf_file.save(tmp_file.name)
                 tmp_file_path = tmp_file.name
-            
-            # Process the PDF
+
             result = process_pdf(tmp_file_path, app.config['MODEL_FOLDER'])
             
         finally:
-            # Clean up temporary file
+
             if tmp_file_path and os.path.exists(tmp_file_path):
                 try:
                     os.unlink(tmp_file_path)
                 except OSError:
-                    # File might still be in use, ignore the error
+
                     pass
         
         return jsonify(result)
@@ -144,7 +142,7 @@ def batch_process():
         if not pdf_files or all(f.filename == '' for f in pdf_files):
             return jsonify({'error': 'No files selected'}), 400
         
-        # Check if model exists
+
         model_path = os.path.join(app.config['MODEL_FOLDER'], 'heading_model.pkl')
         if not os.path.exists(model_path):
             return jsonify({'error': 'No trained model found. Please train a model first.'}), 400
@@ -154,25 +152,25 @@ def batch_process():
         for pdf_file in pdf_files:
             if pdf_file.filename and allowed_file(pdf_file.filename):
                 try:
-                    # Save uploaded file temporarily
+
                     tmp_file_path = None
                     try:
                         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
                             pdf_file.save(tmp_file.name)
                             tmp_file_path = tmp_file.name
                         
-                        # Process the PDF
+          
                         result = process_pdf(tmp_file_path, app.config['MODEL_FOLDER'])
                         result['filename'] = pdf_file.filename
                         results.append(result)
                         
                     finally:
-                        # Clean up temporary file
+
                         if tmp_file_path and os.path.exists(tmp_file_path):
                             try:
                                 os.unlink(tmp_file_path)
                             except OSError:
-                                # File might still be in use, ignore the error
+
                                 pass
                         
                 except Exception as e:
@@ -195,14 +193,13 @@ def download_results():
         if not results:
             return jsonify({'error': 'No results to download'}), 400
         
-        # Create a zip file with all results
+
         memory_file = BytesIO()
         with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
             for result in results:
                 filename = result.get('filename', 'unknown.pdf')
                 json_filename = filename.replace('.pdf', '.json')
-                
-                # Remove filename from result before saving
+
                 clean_result = {k: v for k, v in result.items() if k != 'filename'}
                 
                 json_content = json.dumps(clean_result, indent=4, ensure_ascii=False)
@@ -239,7 +236,6 @@ def model_status():
         }
         
         if model_exists:
-            # Try to load model info
             try:
                 feature_keys = joblib.load(features_path)
                 encoder = joblib.load(encoder_path)
