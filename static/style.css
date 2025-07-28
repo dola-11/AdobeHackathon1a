@@ -1,4 +1,4 @@
-/* Custom styles for PDF Outline Extractor */
+
 
 body {
     background-color: #f8f9fa;
@@ -203,14 +203,14 @@ body {
     color: #667eea;
 }
 
-/* Toast styles */
+
 .toast {
     border-radius: 10px;
     border: none;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Loading animations */
+
 @keyframes pulse {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
@@ -221,7 +221,7 @@ body {
     animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;
@@ -244,7 +244,7 @@ body {
     }
 }
 
-/* Dark mode support */
+
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #1a1a1a;
