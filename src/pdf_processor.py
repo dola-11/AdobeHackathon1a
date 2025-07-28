@@ -25,9 +25,11 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
         feature_keys = joblib.load(features_path)
         
     except FileNotFoundError as e:
-        raise Exception(f"Model files not found: {str(e)}")
-    except Exception as e:
-        raise Exception(f"Failed to load model: {str(e)}")
+        raise FileNotFoundError(f"Model files not found: {str(e)}")
+    except OSError as e:
+        raise OSError(f"Failed to load model: {str(e)}")
+    except ValueError as e:
+        raise ValueError(f"Prediction failed: {str(e)}")
     
     # Extract features from PDF
     try:
@@ -62,11 +64,12 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
         raise Exception(f"Prediction failed: {str(e)}")
     
     # Debug: print prediction results
-    print(f"Processing {len(ml_predictions)} text elements...")
+    # print(f"Processing {len(ml_predictions)} text elements...")
+    # print(f"ML model predictions: {label_counts}")
     label_counts = {}
     for label in ml_predictions:
         label_counts[label] = label_counts.get(label, 0) + 1
-    print(f"ML model predictions: {label_counts}")
+    # print(f"ML model predictions: {label_counts}")
     
     # Apply heuristic rules to improve predictions
     final_predictions = []
@@ -125,10 +128,11 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
             final_predictions.append('Body Text')
     
     # Debug: print final predictions
+    # print(f"Final predictions after heuristics: {final_label_counts}")
     final_label_counts = {}
     for label in final_predictions:
         final_label_counts[label] = final_label_counts.get(label, 0) + 1
-    print(f"Final predictions after heuristics: {final_label_counts}")
+    # print(f"Final predictions after heuristics: {final_label_counts}")
     
     # Extract title and outline
     title = "Untitled Document"
@@ -140,7 +144,7 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
         if label == 'Title':
             title = line_features[i]['text'].strip()
             found_title = True
-            print(f"Found title: '{title}'")
+            # print(f"Found title: '{title}'")
             break
     
     # Second pass: extract outline items and clean them up
@@ -160,7 +164,7 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
                         "page": line_features[i]['page_num']
                     })
                     seen_texts.add(text)
-                    print(f"Added to outline: {label} - '{clean_text}' (page {line_features[i]['page_num']})")
+                    # print(f"Added to outline: {label} - '{clean_text}' (page {line_features[i]['page_num']})")
     
     # If no title was found, try to construct one from first few text elements or first H1
     if not found_title:
@@ -170,7 +174,7 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
             if h1_items:
                 title = h1_items[0]['text']
                 outline = [item for item in outline if item['text'] != title]
-                print(f"Using first H1 as title: '{title}'")
+                # print(f"Using first H1 as title: '{title}'")
         else:
             # Try to construct title from first few meaningful text lines
             meaningful_lines = []
@@ -183,7 +187,7 @@ def process_pdf(pdf_path: str, model_dir: str) -> dict:
             
             if meaningful_lines:
                 title = ' '.join(meaningful_lines[:2])
-                print(f"Constructed title from text: '{title}'")
+                # print(f"Constructed title from text: '{title}'")
     
     # Sort outline by page number and level
     outline.sort(key=lambda x: (x['page'], x['level']))

@@ -110,14 +110,23 @@ def process_pdf_endpoint():
             return jsonify({'error': 'No trained model found. Please train a model first.'}), 400
         
         # Save uploaded file temporarily
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
-            pdf_file.save(tmp_file.name)
+        tmp_file_path = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+                pdf_file.save(tmp_file.name)
+                tmp_file_path = tmp_file.name
             
             # Process the PDF
-            result = process_pdf(tmp_file.name, app.config['MODEL_FOLDER'])
+            result = process_pdf(tmp_file_path, app.config['MODEL_FOLDER'])
             
+        finally:
             # Clean up temporary file
-            os.unlink(tmp_file.name)
+            if tmp_file_path and os.path.exists(tmp_file_path):
+                try:
+                    os.unlink(tmp_file_path)
+                except OSError:
+                    # File might still be in use, ignore the error
+                    pass
         
         return jsonify(result)
         
@@ -146,16 +155,25 @@ def batch_process():
             if pdf_file.filename and allowed_file(pdf_file.filename):
                 try:
                     # Save uploaded file temporarily
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
-                        pdf_file.save(tmp_file.name)
+                    tmp_file_path = None
+                    try:
+                        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+                            pdf_file.save(tmp_file.name)
+                            tmp_file_path = tmp_file.name
                         
                         # Process the PDF
-                        result = process_pdf(tmp_file.name, app.config['MODEL_FOLDER'])
+                        result = process_pdf(tmp_file_path, app.config['MODEL_FOLDER'])
                         result['filename'] = pdf_file.filename
                         results.append(result)
                         
+                    finally:
                         # Clean up temporary file
-                        os.unlink(tmp_file.name)
+                        if tmp_file_path and os.path.exists(tmp_file_path):
+                            try:
+                                os.unlink(tmp_file_path)
+                            except OSError:
+                                # File might still be in use, ignore the error
+                                pass
                         
                 except Exception as e:
                     results.append({
@@ -236,4 +254,4 @@ def model_status():
         return jsonify({'error': f'Status check failed: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)

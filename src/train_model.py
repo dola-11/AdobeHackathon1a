@@ -6,6 +6,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
 from .feature_extractor import extract_features, get_feature_keys
+import logging
+import sys
 
 def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
     """
@@ -19,7 +21,10 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
     Returns:
         dict: Training results and model information
     """
-    print("Starting model training process...")
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    logger.info("Starting model training process...")
     
     # Validate input files
     if not os.path.exists(pdf_path):
@@ -31,14 +36,14 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
     os.makedirs(model_output_dir, exist_ok=True)
     
     # Extract features from PDF
-    print("Extracting features from PDF...")
+    logger.info("Extracting features from PDF...")
     all_lines_features = extract_features(pdf_path)
     
     if not all_lines_features:
         raise ValueError("No text features could be extracted from the PDF")
     
     # Load ground truth data
-    print("Loading ground truth data...")
+    logger.info("Loading ground truth data...")
     with open(json_path, 'r', encoding='utf-8') as f:
         ground_truth = json.load(f)
     
@@ -48,30 +53,30 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
     # Add title
     if 'title' in ground_truth:
         truth_lookup[ground_truth['title'].strip()] = 'Title'
-        print(f"Added title: '{ground_truth['title'].strip()}'")
+        logger.info(f"Added title: '{ground_truth['title'].strip()}'")
     
     # Add outline items
     if 'outline' in ground_truth:
         for item in ground_truth['outline']:
             truth_lookup[item['text'].strip()] = item['level']
-            print(f"Added {item['level']}: '{item['text'].strip()}'")
+            logger.info(f"Added {item['level']}: '{item['text'].strip()}'")
     
-    print(f"Total ground truth items: {len(truth_lookup)}")
-    print(f"Ground truth labels: {set(truth_lookup.values())}")
+    logger.info(f"Total ground truth items: {len(truth_lookup)}")
+    logger.info(f"Ground truth labels: {set(truth_lookup.values())}")
     
     # Debug: Show some sample text from PDF
-    print("Sample PDF text lines:")
+    logger.info("Sample PDF text lines:")
     for i, line in enumerate(all_lines_features[:10]):
-        print(f"  {i+1}: '{line['text']}'")
+        logger.info(f"  {i+1}: '{line['text']}'")
     if len(all_lines_features) > 10:
-        print(f"  ... and {len(all_lines_features) - 10} more lines")
+        logger.info(f"  ... and {len(all_lines_features) - 10} more lines")
     
     # Prepare training data
     feature_keys = get_feature_keys()
     X_train = []
     y_train = []
     
-    print("Creating training dataset...")
+    logger.info("Creating training dataset...")
     matched_count = 0
     for line_features in all_lines_features:
         text = line_features["text"].strip()
@@ -79,7 +84,7 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
         
         if label != 'Body Text':
             matched_count += 1
-            print(f"MATCHED: '{text}' -> {label}")
+            logger.info(f"MATCHED: '{text}' -> {label}")
         
         # Extract feature vector
         feature_vector = []
@@ -93,35 +98,35 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
         X_train.append(feature_vector)
         y_train.append(label)
     
-    print(f"Matched {matched_count} out of {len(all_lines_features)} text lines with ground truth")
+    logger.info(f"Matched {matched_count} out of {len(all_lines_features)} text lines with ground truth")
     
     # Debug: Show potential near matches
     if matched_count == 0:
-        print("\nNo exact matches found. Checking for potential near matches...")
+        logger.info("\nNo exact matches found. Checking for potential near matches...")
         ground_truth_texts = set(truth_lookup.keys())
         pdf_texts = set(line['text'].strip() for line in all_lines_features)
         
-        print("First 10 ground truth texts:")
+        logger.info("First 10 ground truth texts:")
         for i, text in enumerate(list(ground_truth_texts)[:10]):
-            print(f"  GT: '{text}'")
+            logger.info(f"  GT: '{text}'")
         
-        print("\nFirst 10 PDF texts:")
+        logger.info("\nFirst 10 PDF texts:")
         for i, text in enumerate(list(pdf_texts)[:10]):
-            print(f"  PDF: '{text}'")
+            logger.info(f"  PDF: '{text}'")
     
     if len(X_train) == 0:
         raise ValueError("No training data could be created")
     
-    print(f"Training dataset created with {len(X_train)} samples")
+    logger.info(f"Training dataset created with {len(X_train)} samples")
     
     # Check label distribution
     label_counts = {}
     for label in y_train:
         label_counts[label] = label_counts.get(label, 0) + 1
-    print(f"Label distribution: {label_counts}")
+    logger.info(f"Label distribution: {label_counts}")
     
     # Encode labels
-    print("Encoding labels...")
+    logger.info("Encoding labels...")
     encoder = LabelEncoder()
     y_train_encoded = encoder.fit_transform(y_train)
     
@@ -135,7 +140,7 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
         y_train_split, y_val_split = y_train_encoded, y_train_encoded
     
     # Train model
-    print("Training Random Forest model...")
+    logger.info("Training Random Forest model...")
     model = RandomForestClassifier(
         n_estimators=100,
         random_state=42,
@@ -150,10 +155,10 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
     y_pred = model.predict(X_val_split)
     accuracy = accuracy_score(y_val_split, y_pred)
     
-    print(f"Model training complete. Validation accuracy: {accuracy:.3f}")
+    logger.info(f"Model training complete. Validation accuracy: {accuracy:.3f}")
     
     # Save model artifacts
-    print("Saving model artifacts...")
+    logger.info("Saving model artifacts...")
     model_path = os.path.join(model_output_dir, 'heading_model.pkl')
     encoder_path = os.path.join(model_output_dir, 'label_encoder.pkl')
     features_path = os.path.join(model_output_dir, 'feature_keys.pkl')
@@ -172,5 +177,5 @@ def train_model(pdf_path: str, json_path: str, model_output_dir: str) -> dict:
         'feature_keys': feature_keys
     }
     
-    print("Training completed successfully!")
+    logger.info("Training completed successfully!")
     return training_info

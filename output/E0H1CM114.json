@@ -1,0 +1,113 @@
+{
+  "title": "Ontario’s Libraries",
+  "outline": [
+    {
+      "level": "H1",
+      "text": "Working Together",
+      "page": 1
+    },
+    {
+      "level": "H1",
+      "text": "RFP: R",
+      "page": 1
+    },
+    {
+      "level": "H1",
+      "text": "RFP: Request f",
+      "page": 1
+    },
+    {
+      "level": "H1",
+      "text": "Ontario’s Digital Library",
+      "page": 2
+    },
+    {
+      "level": "H2",
+      "text": "Equitable access for all Ontarians:",
+      "page": 4
+    },
+    {
+      "level": "H2",
+      "text": "Shared decision-making and accountability:",
+      "page": 4
+    },
+    {
+      "level": "H2",
+      "text": "Shared governance structure:",
+      "page": 4
+    },
+    {
+      "level": "H2",
+      "text": "Shared funding:",
+      "page": 4
+    },
+    {
+      "level": "H2",
+      "text": "Local points of entry:",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "Guidance and Advice:",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "Provincial Purchasing & Licensing:",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "Technological Support:",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "For each Ontario citizen it could mean:",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "For each Ontario student it could mean:",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "For each Ontario library it could mean:",
+      "page": 6
+    },
+    {
+      "level": "H2",
+      "text": "For the Ontario government it could mean:",
+      "page": 6
+    },
+    {
+      "level": "H1",
+      "text": "Appendix A:  ODL Envisioned Phases & Funding",
+      "page": 9
+    },
+    {
+      "level": "H1",
+      "text": "OVERVIEW OF ODL FUNDING MODEL",
+      "page": 10
+    },
+    {
+      "level": "H1",
+      "text": "Appendix B:",
+      "page": 11
+    },
+    {
+      "level": "H1",
+      "text": "Appendix C:",
+      "page": 14
+    }
+  ],
+  "metadata": {
+    "total_pages": 14,
+    "total_text_lines": 535,
+    "outline_items": 20,
+    "processing_time_seconds": 7.729753255844116,
+    "input_file": "E0H1CM114.pdf",
+    "output_file": "E0H1CM114.json"
+  }
+}
