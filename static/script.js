@@ -1,4 +1,4 @@
-// PDF Outline Extractor - Client-side JavaScript
+
 
 class PDFOutlineExtractor {
     constructor() {
@@ -12,7 +12,7 @@ class PDFOutlineExtractor {
     }
 
     bindEvents() {
-        // Training form events
+        
         document.getElementById('training-form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.uploadTrainingData();
@@ -22,7 +22,7 @@ class PDFOutlineExtractor {
             this.trainModel();
         });
 
-        // Processing form events
+        
         document.getElementById('single-process-form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.processSinglePDF();
@@ -33,7 +33,7 @@ class PDFOutlineExtractor {
             this.processBatchPDFs();
         });
 
-        // Download button
+        
         document.getElementById('download-all-btn').addEventListener('click', () => {
             this.downloadAllResults();
         });
@@ -80,7 +80,7 @@ class PDFOutlineExtractor {
                 </div>
             `;
             
-            // Enable processing forms
+            
             document.getElementById('process-single-btn').disabled = false;
             document.getElementById('process-batch-btn').disabled = false;
         } else {
@@ -102,7 +102,7 @@ class PDFOutlineExtractor {
                 </div>
             `;
             
-            // Disable processing forms
+            
             document.getElementById('process-single-btn').disabled = true;
             document.getElementById('process-batch-btn').disabled = true;
         }
@@ -138,7 +138,7 @@ class PDFOutlineExtractor {
                 this.showToast('Training files uploaded successfully', 'success');
                 document.getElementById('train-btn').disabled = false;
                 
-                // Store filenames for training
+                
                 this.trainingFiles = {
                     pdf_file: data.pdf_file,
                     json_file: data.json_file
@@ -183,7 +183,7 @@ class PDFOutlineExtractor {
             if (response.ok) {
                 this.showToast('Model trained successfully!', 'success');
                 this.displayTrainingResult(data.model_info);
-                this.checkModelStatus(); // Refresh model status
+                this.checkModelStatus(); 
             } else {
                 this.showToast(data.error || 'Training failed', 'error');
             }
@@ -506,14 +506,14 @@ class PDFOutlineExtractor {
         
         toast.show();
         
-        // Remove toast element after it's hidden
+
         toastElement.addEventListener('hidden.bs.toast', () => {
             toastElement.remove();
         });
     }
 }
 
-// Initialize the application
+
 let extractor;
 document.addEventListener('DOMContentLoaded', () => {
     extractor = new PDFOutlineExtractor();
